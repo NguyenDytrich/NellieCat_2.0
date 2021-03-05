@@ -17,7 +17,7 @@ const createConfig = async (guild) => {
 };
 
 export default {
-  start(): void {
+  start(): Discord.Client {
     bot.once('ready', () => {
       console.log('Bot ready.');
       bot.guilds.cache.forEach((g) => {
@@ -25,5 +25,6 @@ export default {
       });
     });
     bot.login(process.env.DISCORD_TOKEN);
+    return bot;
   },
 };

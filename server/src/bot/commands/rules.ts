@@ -1,9 +1,10 @@
 import { ServerConfig } from '../../index';
+import Discord from 'discord.js';
 
 const createRules = {
   name: 'create-rules',
   description: 'Creates a rules post',
-  execute: async (message, args) => {
+  execute: async (message, args): Promise<void> => {
     // Strip the pinged channel of <# >
     if (!args[0]) {
       message.channel.send(
@@ -37,7 +38,7 @@ const createRules = {
         const rulesMsg = await channel.send(rulesEmbed);
 
         // Update the config in the database
-        config.rulesChannel = channel.id;
+        config.rulesChannelId = channel.id;
         config.rulesMsgId = rulesMsg.id;
         config.save();
       }
@@ -50,4 +51,4 @@ const createRules = {
   },
 };
 
-export default [ createRules ];
+export default [createRules];

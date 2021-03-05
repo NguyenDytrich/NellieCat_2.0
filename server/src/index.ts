@@ -1,6 +1,7 @@
 import { ApolloServer, gql } from 'apollo-server';
 import { Sequelize, Model, DataTypes } from 'sequelize';
 import Bot from './bot';
+import { resolvers } from './graphql/resolvers';
 
 import dotenv from 'dotenv';
 const config = dotenv.config();
@@ -23,7 +24,7 @@ export class ServerConfig extends Model {}
 ServerConfig.init(
   {
     serverId: { type: DataTypes.STRING, primaryKey: true },
-    rulesChannel: DataTypes.STRING,
+    rulesChannelId: DataTypes.STRING,
     rulesMsgId: DataTypes.STRING,
     rules: DataTypes.STRING,
     botChannelId: DataTypes.STRING,
@@ -54,47 +55,16 @@ ServerState.sync();
 ServerConfig.hasOne(ServerState);
 ServerState.belongsTo(ServerConfig);
 
-const resolvers = {
-  Query: {
-    serverConfig: async (_, params) => {
-      return await ServerConfig.findOne({
-        where: {
-          serverId: params.serverId,
-        },
-      });
-    },
-    servers: async () => {
-      return ServerConfig.findAll({
-        attributes: ['serverId'],
-      });
-    },
-  },
-
-  Mutation: {
-    updateRules: async (_, params) => {
-      ServerConfig.update(
-        { rulesPostText: params.newRules },
-        {
-          where: {
-            serverId: params.serverId,
-          },
-        },
-      );
-      return true;
-    },
-  },
-};
-
 const typeDefs = gql`
   type ServerConfig {
     serverId: String
-    rulesPostId: String
-    rulesPostText: String
+    rulesMsgId: String
+    rules: String
   }
 
   type Query {
     serverConfig(serverId: String): ServerConfig
-    servers: [String]
+    servers: [ServerConfig]
   }
 
   type Mutation {
@@ -109,5 +79,6 @@ const server = new ApolloServer({
 
 server.listen().then(({ url }) => {
   console.log(`Server ready at ${url}`);
-  Bot.start();
 });
+
+export const client = Bot.start();

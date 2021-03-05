@@ -3,6 +3,7 @@ import Rules from './rules';
 
 const prefix = '$';
 const commands = [];
+const internalCommands = [];
 
 const ping = {
   name: 'ping',
@@ -39,7 +40,10 @@ export default {
   register(client): void {
     // Register Commands
     client.commands = new Discord.Collection();
+    client.internalCommands = new Discord.Collection();
+
     commands.forEach((c) => client.commands.set(c.name, c));
+    internalCommands.forEach((c) => client.command.set(c.name, c));
 
     const commandHandler = (message) => {
       // return if message doesn't start with the prefix, or the author is a bot
