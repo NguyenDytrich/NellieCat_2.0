@@ -1,21 +1,7 @@
-import Discord from 'discord.js';
-import { ServerConfig } from './index';
+import { ServerConfig } from '../../index';
 
-const bot = new Discord.Client();
-bot.commands = new Discord.Collection();
-
-const prefix = '$';
-
-const ping = {
-  name: 'ping',
-  description: 'Ping!',
-  execute(message, args) {
-    message.channel.send('Pong.');
-  },
-};
-
-const rules = {
-  name: 'rules-create',
+const createRules = {
+  name: 'create-rules',
   description: 'Creates a rules post',
   execute: async (message, args) => {
     // Strip the pinged channel of <# >
@@ -64,47 +50,4 @@ const rules = {
   },
 };
 
-bot.commands.set(ping.name, ping);
-bot.commands.set(rules.name, rules);
-
-bot.on('message', (message) => {
-  // return if message doesn't start with the prefix, or the author is a bot
-  if (!message.content.startsWith(prefix) || message.author.bot) return;
-
-  const args = message.content.slice(prefix.length).trim().split(/ +/);
-
-  // remove the prefix, then change the command name to all lowercase
-  const command = args.shift().toLowerCase();
-
-  // return if there's no command exists
-  if (!bot.commands.has(command)) return;
-
-  try {
-    bot.commands.get(command).execute(message, args);
-  } catch (error) {
-    console.error(error);
-  }
-});
-
-const createConfig = async (guild) => {
-  const [_, created] = await ServerConfig.findOrCreate({
-    where: { serverId: guild.id },
-  });
-  if (created) {
-    console.log(
-      `Created config in database for guild ${guild.id} (${guild.name})`,
-    );
-  }
-};
-
-export default {
-  start(): void {
-    bot.once('ready', () => {
-      console.log('Bot ready.');
-      bot.guilds.cache.forEach((g) => {
-        createConfig(g);
-      });
-    });
-    bot.login(process.env.DISCORD_TOKEN);
-  },
-};
+export default [ createRules ];

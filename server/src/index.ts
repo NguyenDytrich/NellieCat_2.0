@@ -1,6 +1,6 @@
 import { ApolloServer, gql } from 'apollo-server';
 import { Sequelize, Model, DataTypes } from 'sequelize';
-import Bot from './Bot';
+import Bot from './bot';
 
 import dotenv from 'dotenv';
 const config = dotenv.config();
