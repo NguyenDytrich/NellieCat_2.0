@@ -27,8 +27,15 @@ ServerConfig.init(
     rulesChannelId: DataTypes.STRING,
     rulesMsgId: DataTypes.STRING,
     rules: DataTypes.STRING,
+    // Does reading and reacting to rules add a role?
+    doRulesGrantRole: { type: DataTypes.BOOLEAN, defaultValue: false },
+    // Role to grant, if configured to grant roles on
+    // reaction to rules
+    rulesRoleId: DataTypes.STRING,
+    rulesReactionId: DataTypes.STRING,
+    // Channel to listen to, if configured to only
+    // listen to messages from specific channel
     botChannelId: DataTypes.STRING,
-    grantRole: DataTypes.STRING,
   },
   {
     sequelize,

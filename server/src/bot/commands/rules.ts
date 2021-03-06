@@ -19,7 +19,6 @@ const createRules = {
 
       // Find the config for our rules
       const config = await ServerConfig.findOne({
-        attributes: ['serverId', 'rulesMsgId', 'rules'],
         where: {
           serverId: message.guild.id,
         },
@@ -60,8 +59,10 @@ const createRules = {
         config.rulesChannelId = channel.id;
         config.rulesMsgId = rulesMsg.id;
         await config.save();
-        // Create the reaction collector for the rules
-        await RuleCollectorManager.createRuleCollector(message.guild, true);
+
+        // Create the reaction collector for the rules, if needed
+        if (config.doRulesGrantRole && config.rulesRoleId && config.rulesReactionId)
+          await RuleCollectorManager.createRuleCollector(message.guild, true);
       }
     } catch (error) {
       console.error(error);
@@ -72,4 +73,53 @@ const createRules = {
   },
 };
 
-export default [createRules];
+const rulesGrantRole = {
+  name: 'rules-grant-role',
+  description: 'Sets the role granted by reacting to the rules',
+  async execute(message, args) {
+    if (args.length < 2) {
+      message.channel.send(
+        'Use `$rules-grant-role @[role mention] [emoji]` to set the role to grant when someone reacts to your rules!',
+      );
+    }
+    const config = await ServerConfig.findByPk(message.guild.id);
+    const role = await message.mentions.roles.first();
+
+    if (!role) {
+      message.channel.send(
+        'Use `$rules-grant-role @[role mention] [emoji]` to set the role to grant when someone reacts to your rules!',
+      );
+    }
+
+    let emoji: string;
+
+    if (args[1][0] === '<') {
+      emoji = 'this is a mention?';
+      const bracketless = args[1].substring(2, args[1].length - 1);
+      // Split the mention into the emoji name and the emoji id
+      const split = bracketless.split(':');
+      // Resolve the emoji by its Snowflake
+      emoji = await message.guild.emojis.resolve(split[1]).id;
+    } else {
+      emoji = args[1];
+    }
+
+    if (config) {
+      config.doRulesGrantRole = true;
+      config.rulesRoleId = role.id;
+      config.rulesReactionId = emoji;
+      await config.save();
+
+      // Create a rule reaction collector if there's a msg id
+      if(config.rulesMsgId)
+        await RuleCollectorManager.createRuleCollector(message.guild, true);
+    } else {
+      console.error('No config found in database for server.');
+      message.channel.send(
+        "Sorry, something happened on the server. I couldn't complete that command",
+      );
+    }
+  },
+};
+
+export default [createRules, rulesGrantRole];

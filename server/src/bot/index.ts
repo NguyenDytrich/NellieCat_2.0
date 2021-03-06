@@ -9,7 +9,7 @@ Commands.register(bot);
 
 // Create configurations for guilds if they don't yet exist
 const createConfig = async (guild) => {
-  const [_, created] = await ServerConfig.findOrCreate({
+  const [config, created] = await ServerConfig.findOrCreate({
     where: { serverId: guild.id },
   });
   if (created) {
@@ -17,6 +17,7 @@ const createConfig = async (guild) => {
       `Created config in database for guild ${guild.id} (${guild.name})`,
     );
   }
+  return config;
 };
 
 export default {
@@ -24,10 +25,12 @@ export default {
     bot.once('ready', () => {
       console.log('Bot ready.');
       bot.guilds.cache.forEach(async (g) => {
-        createConfig(g);
+        const config = await createConfig(g);
 
-        // Create a rule collector for each guild
-        await RuleCollectorManager.createRuleCollector(g);
+        // Create a rule collector for each guild that's
+        // configured to grant roles on reaction to rules
+        if (config.doRulesGrantRole && config.rulesRoleId)
+          await RuleCollectorManager.createRuleCollector(g);
       });
     });
     bot.login(process.env.DISCORD_TOKEN);

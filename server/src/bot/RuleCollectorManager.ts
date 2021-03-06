@@ -34,19 +34,34 @@ class RuleCollectorManager {
     }
 
     const config = await ServerConfig.findOne({
-      attributes: ['rulesChannelId', 'rulesMsgId'],
       where: { serverId: guild.id },
     });
 
+    if (!config) {
+      console.error(`No config found for guild ${guild.name}`);
+      return;
+    }
+
     // Check that we have configuration
-    if (config.rulesChannelId && config.rulesMsgId) {
+    if (
+      config.rulesChannelId &&
+      config.rulesMsgId &&
+      config.doRulesGrantRole &&
+      config.rulesReactionId
+    ) {
       try {
         const channel = await guild.channels.resolve(config.rulesChannelId);
         const msg = await channel.messages.fetch(config.rulesMsgId);
 
+        // Check if the unicode character is a Snowflake
+        const isSnowflake = /^\d+$/.test(config.rulesReactionId);
+
         const collector = msg.createReactionCollector((reaction, user) => {
-          // return reaction === '👍';
-          return true;
+          if (!isSnowflake) {
+            return reaction.emoji.name === config.rulesReactionId;
+          } else {
+            return reaction.emoji.id === config.rulesReactionId;
+          }
         });
 
         collector.on('collect', (reaction, user) => {
@@ -60,6 +75,9 @@ class RuleCollectorManager {
         console.error(error);
         return;
       }
+    } else {
+      console.error('Guild not configured for rules post reaction');
+      return;
     }
   }
 }
