@@ -36,15 +36,25 @@ export const resolvers = {
           return false;
         }
 
+        // Update the embed if there is one
         // This should really be a separate function
         if (rules.rulesChannelId && rules.rulesMsgId) {
           const rulesEmbed = new Discord.MessageEmbed().setTitle('Rules');
           rulesEmbed.addField('\u200b', rules.rules);
           const channel = await client.channels.fetch(rules.rulesChannelId);
-          const message = await channel.messages.fetch(rules.rulesMsgId);
           console.log(channel);
-          message.edit(rulesEmbed);
+          try {
+            const message = await channel.messages.fetch(rules.rulesMsgId);
+            message.edit(rulesEmbed);
+          } catch (error) {
+            // If there's a rules message that has since been deleted,
+            // don't do anything
+            console.error(error);
+          }
         }
+        // TODO Next steps: we should ping all users that rules have been updated
+        // If reactions to the embed grant roles, all users with that role should
+        // be removed, if configured
       } catch (error) {
         console.error(error);
       }
