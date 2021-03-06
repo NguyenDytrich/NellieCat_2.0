@@ -47,6 +47,7 @@ class RuleCollectorManager {
       config.rulesChannelId &&
       config.rulesMsgId &&
       config.doRulesGrantRole &&
+      config.rulesRoleId &&
       config.rulesReactionId
     ) {
       try {
@@ -64,8 +65,10 @@ class RuleCollectorManager {
           }
         });
 
-        collector.on('collect', (reaction, user) => {
+        collector.on('collect', async (reaction, user) => {
           console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);
+          const member = await reaction.message.guild.members.fetch(user.id);
+          await member.roles.add(config.rulesRoleId);
         });
         console.log(`Rules reaction collector created for ${guild.name}`);
 
