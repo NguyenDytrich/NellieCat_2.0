@@ -56,11 +56,29 @@ ServerState.init(
   },
 );
 
+// Configures command groups
+export class GroupConfig extends Model {}
+GroupConfig.init(
+  {
+    adminRoles: DataTypes.ARRAY,
+    adminUsers: DataTypes.ARRAY,
+  },
+  {
+    sequelize,
+    modelName: 'group_configs',
+    underscored: true,
+  },
+);
+
 ServerConfig.sync();
 ServerState.sync();
+GroupConfig.sync();
 
 ServerConfig.hasOne(ServerState);
 ServerState.belongsTo(ServerConfig);
+
+ServerConfig.hasOne(GroupConfig);
+GroupConfig.belongsTo(ServerConfig);
 
 const typeDefs = gql`
   type ServerConfig {
