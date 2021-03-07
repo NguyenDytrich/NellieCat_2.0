@@ -102,9 +102,6 @@ class PermissionManager {
   // }
 
   public hasPermissions(user: Discord.GuildMember, command: Command): boolean {
-    console.log(
-      `testing permissions for command ${command.name} with permLevel ${command.permLevel}`,
-    );
     if (command.permLevel === undefined) return true;
 
     const perms = this._userMap.get(user.id);
