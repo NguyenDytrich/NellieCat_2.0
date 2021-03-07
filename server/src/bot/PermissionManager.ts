@@ -102,10 +102,13 @@ class PermissionManager {
   // }
 
   public hasPermissions(user: Discord.GuildMember, command: Command): boolean {
-    if (!command.permLevel) return true;
+    console.log(
+      `testing permissions for command ${command.name} with permLevel ${command.permLevel}`,
+    );
+    if (command.permLevel === undefined) return true;
 
     const perms = this._userMap.get(user.id);
-    if (perms && perms <= command.permLevel) {
+    if (perms !== undefined && perms <= command.permLevel) {
       return true;
     }
 
@@ -121,11 +124,14 @@ class PermissionManager {
 }
 
 export default {
-  async createPermissionManager(guild: Discord.Guild): Promise<void> {
+  async createPermissionManager(
+    guild: Discord.Guild,
+  ): Promise<PermissionManager> {
     // Map a manager instance to each guild
     const p = new PermissionManager(guild.id);
     p.setUserPermissions(guild.ownerID, PermissionGroup.Owner);
     await p.sync();
     console.log(`Created permissions manager for guild ${guild.name}`);
+    return p;
   },
 };

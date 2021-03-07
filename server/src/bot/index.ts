@@ -33,8 +33,8 @@ export default {
         if (config.doRulesGrantRole && config.rulesRoleId)
           await RuleCollectorManager.createRuleCollector(g);
 
-        // TODO: map these in a collection
-        PermissionManager.createPermissionManager(g);
+        const permManager = await PermissionManager.createPermissionManager(g);
+        bot.permManagers.set(g.id, permManager);
       });
     });
     bot.login(process.env.DISCORD_TOKEN);

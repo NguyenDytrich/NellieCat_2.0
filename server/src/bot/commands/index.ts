@@ -5,14 +5,26 @@ import Command from './Command';
 const prefix = '$';
 const commands = new Array<Command>();
 
-commands.push(...Rules);
+const permissionPing = new Command(
+  {
+    name: 'permission-ping',
+    description: 'A ping that requires permission',
+    permLevel: 0,
+  },
+  (message) => {
+    message.channel.send('Pong.');
+  },
+);
+
+commands.push(permissionPing, ...Rules);
 
 export default {
   register(client): void {
-    // Register Commands
+    // Create caches
     client.commands = new Discord.Collection();
-    client.internalCommands = new Discord.Collection();
+    client.permManagers = new Discord.Collection();
 
+    // Register Commands
     commands.forEach((c) => client.commands.set(c.name, c));
 
     const commandHandler = (message) => {
@@ -28,8 +40,21 @@ export default {
       // return if there's no command exists
       if (!client.commands.has(command)) return;
 
+      const manager = client.permManagers.get(message.guild.id);
+
       try {
-        client.commands.get(command).execute(message, args);
+        const cmd = client.commands.get(command);
+        if (manager) {
+          if (manager.hasPermissions(message.member, cmd)) {
+            cmd.execute(message, args);
+          } else {
+            message.channel.send(
+              "Sorry, you don't have permission to use that command.",
+            );
+          }
+        } else {
+          throw new Error('Could not validate command usage.');
+        }
       } catch (error) {
         console.error(error);
       }

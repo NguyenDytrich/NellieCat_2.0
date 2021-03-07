@@ -7,6 +7,7 @@ const createRules = new Command(
   {
     name: 'create-rules',
     description: 'Creates a rules post',
+    permLevel: 1,
   },
   async (message, args): Promise<void> => {
     // Strip the pinged channel of <# >
@@ -84,6 +85,7 @@ const rulesGrantRole = new Command(
   {
     name: 'rules-grant-role',
     description: 'Sets the role granted by reacting to the rules',
+    permLevel: 1,
   },
   async (message, args) => {
     if (args.length < 2) {
