@@ -2,6 +2,7 @@ import Discord from 'discord.js';
 import { ServerConfig } from '../index';
 import Commands from './commands';
 import RuleCollectorManager from './RuleCollectorManager';
+import PermissionManager from './PermissionManager';
 
 const bot = new Discord.Client();
 
@@ -31,6 +32,9 @@ export default {
         // configured to grant roles on reaction to rules
         if (config.doRulesGrantRole && config.rulesRoleId)
           await RuleCollectorManager.createRuleCollector(g);
+
+        // TODO: map these in a collection
+        PermissionManager.createPermissionManager(g);
       });
     });
     bot.login(process.env.DISCORD_TOKEN);

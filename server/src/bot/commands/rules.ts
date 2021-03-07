@@ -1,11 +1,14 @@
 import { ServerConfig } from '../../index';
 import Discord from 'discord.js';
 import RuleCollectorManager from './../RuleCollectorManager';
+import Command from './Command';
 
-const createRules = {
-  name: 'create-rules',
-  description: 'Creates a rules post',
-  execute: async (message, args): Promise<void> => {
+const createRules = new Command(
+  {
+    name: 'create-rules',
+    description: 'Creates a rules post',
+  },
+  async (message, args): Promise<void> => {
     // Strip the pinged channel of <# >
     if (!args[0]) {
       message.channel.send(
@@ -61,7 +64,11 @@ const createRules = {
         await config.save();
 
         // Create the reaction collector for the rules, if needed
-        if (config.doRulesGrantRole && config.rulesRoleId && config.rulesReactionId)
+        if (
+          config.doRulesGrantRole &&
+          config.rulesRoleId &&
+          config.rulesReactionId
+        )
           await RuleCollectorManager.createRuleCollector(message.guild, true);
       }
     } catch (error) {
@@ -71,12 +78,14 @@ const createRules = {
       );
     }
   },
-};
+);
 
-const rulesGrantRole = {
-  name: 'rules-grant-role',
-  description: 'Sets the role granted by reacting to the rules',
-  async execute(message, args) {
+const rulesGrantRole = new Command(
+  {
+    name: 'rules-grant-role',
+    description: 'Sets the role granted by reacting to the rules',
+  },
+  async (message, args) => {
     if (args.length < 2) {
       message.channel.send(
         'Use `$rules-grant-role @[role mention] [emoji]` to set the role to grant when someone reacts to your rules!',
@@ -111,7 +120,7 @@ const rulesGrantRole = {
       await config.save();
 
       // Create a rule reaction collector if there's a msg id
-      if(config.rulesMsgId)
+      if (config.rulesMsgId)
         await RuleCollectorManager.createRuleCollector(message.guild, true);
     } else {
       console.error('No config found in database for server.');
@@ -120,6 +129,6 @@ const rulesGrantRole = {
       );
     }
   },
-};
+);
 
 export default [createRules, rulesGrantRole];

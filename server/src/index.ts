@@ -60,8 +60,9 @@ ServerState.init(
 export class GroupConfig extends Model {}
 GroupConfig.init(
   {
-    adminRoles: DataTypes.ARRAY,
-    adminUsers: DataTypes.ARRAY,
+    group: DataTypes.INTEGER,
+    snowflake: DataTypes.STRING,
+    type: DataTypes.ENUM('role', 'user'),
   },
   {
     sequelize,
@@ -70,15 +71,19 @@ GroupConfig.init(
   },
 );
 
-ServerConfig.sync();
-ServerState.sync();
-GroupConfig.sync();
-
-ServerConfig.hasOne(ServerState);
+ServerConfig.hasOne(ServerState, {
+  foreignKey: 'serverId',
+});
 ServerState.belongsTo(ServerConfig);
 
-ServerConfig.hasOne(GroupConfig);
+ServerConfig.hasMany(GroupConfig, {
+  foreignKey: 'serverId',
+});
 GroupConfig.belongsTo(ServerConfig);
+
+ServerConfig.sync();
+GroupConfig.sync();
+ServerState.sync();
 
 const typeDefs = gql`
   type ServerConfig {
