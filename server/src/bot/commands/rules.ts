@@ -13,7 +13,7 @@ const createRules = new Command(
     // Strip the pinged channel of <# >
     if (!args[0]) {
       message.channel.send(
-        "Use `$rules-create #[channel]` to create a post for the rules of your server! If you haven't configured any rules, default rules will be used instead. Visit the configuration panel to update the rules of your server! (WIP)",
+        "Use `$create-rules #[channel mention]` to create a post for the rules of your server! If you haven't configured any rules, default rules will be used instead. Visit the configuration panel to update the rules of your server! (WIP)",
       );
       return;
     }
