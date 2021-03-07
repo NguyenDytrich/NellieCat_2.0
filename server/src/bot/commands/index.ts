@@ -1,5 +1,6 @@
 import Discord from 'discord.js';
 import Rules from './rules';
+import Perms from './perms';
 import Command from './Command';
 
 const prefix = '$';
@@ -16,7 +17,7 @@ const permissionPing = new Command(
   },
 );
 
-commands.push(permissionPing, ...Rules);
+commands.push(permissionPing, ...Rules, ...Perms);
 
 export default {
   register(client): void {
