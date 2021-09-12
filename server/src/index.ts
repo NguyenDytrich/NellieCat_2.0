@@ -2,6 +2,7 @@ import { ApolloServer, gql } from 'apollo-server';
 import { Sequelize, Model, DataTypes } from 'sequelize';
 import Bot from './bot';
 import { resolvers } from './graphql/resolvers';
+import { startRest } from './rest';
 
 import dotenv from 'dotenv';
 const config = dotenv.config();
@@ -9,8 +10,9 @@ if (config.error) {
   throw config.error;
 }
 
-const conn_url = `postgres://${process.env.PG_USER}:${process.env.PG_PASS}@${process.env.PG_URL}:${process.env.PG_PORT}/${process.env.PG_DB}`;
-const sequelize = new Sequelize(conn_url);
+//const conn_url = `postgres://${process.env.PG_USER}:${process.env.PG_PASS}@${process.env.PG_URL}:${process.env.PG_PORT}/${process.env.PG_DB}`;
+//const sequelize = new Sequelize(conn_url);
+const sequelize = new Sequelize(process.env.DB_CONN_STR);
 
 try {
   sequelize.authenticate().then(() => {
@@ -71,6 +73,22 @@ GroupConfig.init(
   },
 );
 
+// Consultant Bios
+export class ConsultantBio extends Model {}
+ConsultantBio.init(
+  {
+    userId: DataTypes.STRING,
+    bio: DataTypes.STRING,
+    imageUrl: DataTypes.STRING,
+    isActive: DataTypes.BOOLEAN,
+  },
+  {
+    sequelize,
+    modelName: 'consultant_bios',
+    underscored: true,
+  },
+);
+
 ServerConfig.hasOne(ServerState, {
   foreignKey: 'serverId',
 });
@@ -80,10 +98,15 @@ ServerConfig.hasMany(GroupConfig, {
   foreignKey: 'serverId',
 });
 GroupConfig.belongsTo(ServerConfig);
+ServerConfig.hasMany(ConsultantBio, {
+  foreignKey: 'serverId',
+});
+ConsultantBio.belongsTo(ServerConfig);
 
-ServerConfig.sync();
-GroupConfig.sync();
-ServerState.sync();
+// ServerConfig.sync();
+// GroupConfig.sync();
+// ServerState.sync();
+sequelize.sync();
 
 const typeDefs = gql`
   type ServerConfig {
@@ -110,5 +133,7 @@ const server = new ApolloServer({
 server.listen().then(({ url }) => {
   console.log(`Server ready at ${url}`);
 });
+
+startRest();
 
 export const client = Bot.start();
