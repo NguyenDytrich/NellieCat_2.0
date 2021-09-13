@@ -7,8 +7,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "build": "babel src -d lib --extensions '.ts'",
-    "server": "node ./lib/index.js"
+    "build": "babel src -d build --extensions '.ts'",
+    "server": "node ./build/index.js"
   },
   "dependencies": {
     "@babel/runtime": "^7.12.13",
