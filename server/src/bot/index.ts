@@ -37,6 +37,12 @@ export default {
         bot.permManagers.set(g.id, permManager);
       });
     });
+
+    // Create a configuration when the bot joins a guild
+    bot.on('guildCreate', async (g) => {
+      await createConfig(g);
+    });
+
     bot.login(process.env.DISCORD_TOKEN);
     return bot;
   },
