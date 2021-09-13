@@ -19,6 +19,7 @@ app.get('/:serverId/rules', async (req, res) => {
   }
 });
 
+// TODO: secure this
 app.put('/:serverId/rules', async (req, res) => {
   updateRules(req.params.serverId);
   return res.sendStatus(200);
