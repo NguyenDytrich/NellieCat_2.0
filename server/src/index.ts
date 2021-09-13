@@ -5,13 +5,8 @@ import { resolvers } from './graphql/resolvers';
 import { startRest } from './rest';
 
 import dotenv from 'dotenv';
-const config = dotenv.config();
-if (config.error) {
-  throw config.error;
-}
+dotenv.config();
 
-//const conn_url = `postgres://${process.env.PG_USER}:${process.env.PG_PASS}@${process.env.PG_URL}:${process.env.PG_PORT}/${process.env.PG_DB}`;
-//const sequelize = new Sequelize(conn_url);
 const sequelize = new Sequelize(process.env.DB_CONN_STR);
 
 try {
