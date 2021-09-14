@@ -4,12 +4,12 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DB_CONN_STR=postgres://postgres:unsafe@postgres:5432/postgres
-      - DISCORD_TOKEN=SECRET
+      - DB_CONN_STR=postgres://postgres:${PG_PASS}@postgres:5432/postgres
+      - DISCORD_TOKEN=${DS_TOKEN}
   postgres:
     image: "postgres:13.4-alpine"
     environment:
-      - POSTGRES_PASSWORD=unsafe
+      - POSTGRES_PASSWORD=${PG_PASS}
   nginx:
     image: "nginx:1.21.3-alpine"
     ports:
